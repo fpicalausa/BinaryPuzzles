@@ -42,6 +42,12 @@ export function Grid({
                                 e.preventDefault();
                                 return false;
                             }}
+                            onTouchStart={(e) => {
+                                setCell(i, j, next(cell.value));
+
+                                e.preventDefault();
+                                return false;
+                            }}
                             onClick={(e) => {
                                 if (e.buttons === 1) {
                                     setCell(i, j, next(cell.value));
