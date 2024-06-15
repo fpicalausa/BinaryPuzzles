@@ -1,0 +1,42 @@
+.grid {
+    display: grid;
+
+    justify-content: start;
+    align-items: start;
+
+    user-select: none;
+}
+
+.grid .cell {
+    background: #444;
+    width: 28px;
+    height: 28px;
+    border: 1px solid black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+}
+
+.grid .cell:hover {
+    background: #555;
+}
+
+.grid .cell.error-row {
+    background-color: #472300;
+}
+
+.grid .cell.error-column {
+    background-color: #472300;
+}
+
+.grid .cell.error-cell {
+    background-color: #5d0000;
+}
+
+.grid .cell.initial {
+    font-weight: bold;
+}

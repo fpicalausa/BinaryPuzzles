@@ -1,0 +1,21 @@
+#root {
+    max-width: 800px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+input {
+    margin-left: 12px;
+}
+
+.game-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.solved {
+    color: green;
+}
