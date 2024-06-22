@@ -9,8 +9,8 @@
 
 .grid .cell {
     background: #444;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border: 1px solid black;
 
     display: flex;
