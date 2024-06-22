@@ -47,10 +47,14 @@ function Game() {
                         if (game === 'url') {
                             const url = prompt(
                                 'url?',
-                                'https://corsproxy.io/?https%3A%2F%2Fwww.binarypuzzle.com%2Findex.php',
+                                'https://www.binarypuzzle.com/index.php',
                             );
                             if (!url) return;
-                            load(await extractPuzzleFromUrl(url));
+
+                            const proxyUrl =
+                                'https://corsproxy.io/?' +
+                                encodeURIComponent(url);
+                            load(await extractPuzzleFromUrl(proxyUrl));
                             return;
                         }
 
