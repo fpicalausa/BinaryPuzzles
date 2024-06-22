@@ -43,12 +43,20 @@ export function Grid({
                                 return false;
                             }}
                             onTouchStart={(e) => {
+                                if (cell.isInitial && grid.isLocked()) {
+                                    return false;
+                                }
+
                                 setCell(i, j, next(cell.value));
 
                                 e.preventDefault();
                                 return false;
                             }}
                             onClick={(e) => {
+                                if (cell.isInitial && grid.isLocked()) {
+                                    return false;
+                                }
+
                                 if (e.buttons === 1) {
                                     setCell(i, j, next(cell.value));
                                 }
