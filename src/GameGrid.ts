@@ -56,7 +56,11 @@ export class GameGrid {
     }
 
     setCell(x: number, y: number, value: CellValue) {
-        this._state[x][y] = { value, isInitial: this._isInitial, error: null };
+        this._state[x][y] = {
+            value,
+            isInitial: this._isInitial && value !== null,
+            error: null,
+        };
         this.updateState();
     }
 
