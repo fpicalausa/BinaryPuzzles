@@ -55,7 +55,11 @@ function loadGameData(data: string) {
                 i < values.length && j < values[i].length
                     ? stringToCellValue(values[i][j])
                     : null;
-            state[i].push({ isInitial: true, value: cellValue, error: null });
+            state[i].push({
+                isInitial: cellValue !== null,
+                value: cellValue,
+                error: null,
+            });
         }
     }
 
