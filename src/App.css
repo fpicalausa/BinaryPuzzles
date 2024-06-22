@@ -19,3 +19,7 @@ input {
 .solved {
     color: green;
 }
+
+.hint-details {
+    max-width: 320px;
+}

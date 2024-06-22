@@ -7,18 +7,31 @@ import {
 } from './GameGridContext.tsx';
 import games from './assets/games/games.ts';
 import { extractPuzzleFromUrl } from './gameGridImporter.ts';
+import solvers from './solvers';
 
 function Game() {
     const [showErrors, setShowErrors] = useState(true);
     const [level, setLevel] = useState<string | null>(null);
+    const [hint, setHint] = useState<Step | null>(null);
 
     const { grid, clear, resize, lockGrid, load } = useContext(gameGridContext);
+
+    function computeNextHint() {
+        for (let solver of solvers) {
+            const steps = solver.findCandidates(grid.getState());
+            if (!steps.length) continue;
+
+            setHint(steps[0]);
+            return;
+        }
+    }
 
     return (
         <>
             <label>
                 Size:
                 <input
+                    disabled={grid.isLocked()}
                     type="number"
                     value={grid.getSize()}
                     step={2}
@@ -55,6 +68,7 @@ function Game() {
                                 'https://corsproxy.io/?' +
                                 encodeURIComponent(url);
                             load(await extractPuzzleFromUrl(proxyUrl));
+                            grid.lockGrid();
                             return;
                         }
 
@@ -77,9 +91,18 @@ function Game() {
                         ))}
                 </select>
             </label>
-            <Grid showErrors={showErrors} level={level} />
+            <Grid
+                showErrors={showErrors}
+                level={level}
+                hint={hint}
+                cleaHint={() => setHint(null)}
+            />
             {grid.isValid() && <div className="solved">Solved</div>}
+            {hint && <div className="hint-details">{hint.explanation}</div>}
             <div className="game-controls">
+                {grid.isLocked() && (
+                    <button onClick={computeNextHint}>Hint</button>
+                )}
                 {!grid.isLocked() && (
                     <button onClick={() => lockGrid()}>Start Playing</button>
                 )}

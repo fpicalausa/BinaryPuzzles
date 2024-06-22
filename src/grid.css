@@ -37,6 +37,14 @@
     background-color: #5d0000;
 }
 
+.grid .cell.hint {
+    background-color: #dfff06;
+}
+
+.grid .cell.hint-constraint {
+    background-color: #4d2c00;
+}
+
 .grid .cell.initial {
     font-weight: bold;
 }

@@ -16,9 +16,13 @@ function next(value: 0 | 1 | null) {
 export function Grid({
     showErrors,
     level,
+    hint,
+    cleaHint,
 }: {
     showErrors: boolean;
     level: string | null;
+    hint: Step | null;
+    cleaHint: () => void;
 }) {
     const { grid, setCell } = useContext(gameGridContext);
 
@@ -48,6 +52,7 @@ export function Grid({
                                 }
 
                                 setCell(i, j, next(cell.value));
+                                cleaHint();
 
                                 e.preventDefault();
                                 return false;
@@ -57,8 +62,9 @@ export function Grid({
                                     return false;
                                 }
 
-                                if (e.buttons === 1) {
+                                if (e.buttons === 0) {
                                     setCell(i, j, next(cell.value));
+                                    cleaHint();
                                 }
 
                                 e.preventDefault();
@@ -69,6 +75,15 @@ export function Grid({
                                 cell.isInitial ? 'initial' : '',
                                 showErrors && cell.error
                                     ? 'error-' + cell.error
+                                    : '',
+                                hint?.location[0] === i &&
+                                hint?.location[1] === j
+                                    ? 'hint'
+                                    : '',
+                                hint?.constraintCells.some(
+                                    (c) => c[0] === i && c[1] === j,
+                                )
+                                    ? 'hint-constraint'
                                     : '',
                             ].join(' ')}>
                             {cell.value}
