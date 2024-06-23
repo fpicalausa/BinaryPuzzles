@@ -10,7 +10,7 @@ export class TerminateRuns implements SolverStrategy {
             for (let j = 0; j < grid[i].length; j++) {
                 if (grid[i][j].value !== null) continue;
                 if (
-                    i > 2 &&
+                    i > 1 &&
                     grid[i - 2][j].value === grid[i - 1][j].value &&
                     grid[i - 1][j].value !== null
                 ) {
@@ -27,7 +27,7 @@ export class TerminateRuns implements SolverStrategy {
                     );
                 }
                 if (
-                    j > 2 &&
+                    j > 1 &&
                     grid[i][j - 2].value === grid[i][j - 1].value &&
                     grid[i][j - 1].value !== null
                 ) {
