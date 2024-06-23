@@ -59,7 +59,7 @@ export class SplitRuns implements SolverStrategy {
     ): Step {
         return {
             strategy: SplitRuns.name,
-            location,
+            locations: [location],
             value,
             constraintCells,
             explanation: `${value === 1 ? 0 : 1} appears in two cells ${direction}. Since three consecutive cells cannot have the same value, this cell must be ${value}`,

@@ -65,8 +65,9 @@ export function Grid({
                                 showErrors && cell.error
                                     ? 'error-' + cell.error
                                     : '',
-                                hint?.location[0] === i &&
-                                hint?.location[1] === j
+                                hint?.locations.some(
+                                    (l) => l[0] === i && l[1] === j,
+                                )
                                     ? 'hint'
                                     : '',
                                 hint?.constraintCells.some(

@@ -14,7 +14,7 @@ describe('SplitRuns', () => {
 
         const expectedSteps = [
             expect.objectContaining({
-                location: [1, 3],
+                locations: [[1, 3]],
                 constraintCells: [
                     [1, 2],
                     [1, 4],
@@ -22,7 +22,7 @@ describe('SplitRuns', () => {
                 value: 1,
             }),
             expect.objectContaining({
-                location: [3, 2],
+                locations: [[3, 2]],
                 constraintCells: [
                     [3, 1],
                     [3, 3],
@@ -48,7 +48,7 @@ describe('SplitRuns', () => {
 
         const expectedSteps = [
             expect.objectContaining({
-                location: [2, 1],
+                locations: [[2, 1]],
                 constraintCells: [
                     [1, 1],
                     [3, 1],
@@ -56,7 +56,7 @@ describe('SplitRuns', () => {
                 value: 1,
             }),
             expect.objectContaining({
-                location: [2, 4],
+                locations: [[2, 4]],
                 constraintCells: [
                     [1, 4],
                     [3, 4],
@@ -78,16 +78,16 @@ describe('SplitRuns', () => {
 
         const expectedSteps = [
             expect.objectContaining({
-                location: [0, 1],
+                locations: [[0, 1]],
             }),
             expect.objectContaining({
-                location: [1, 0],
+                locations: [[1, 0]],
             }),
             expect.objectContaining({
-                location: [3, 2],
+                locations: [[3, 2]],
             }),
             expect.objectContaining({
-                location: [2, 3],
+                locations: [[2, 3]],
             }),
         ];
 

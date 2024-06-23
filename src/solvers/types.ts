@@ -9,7 +9,7 @@ interface SolverStrategy {
 type SolverRegistry = SolverStrategy[];
 
 type Step = {
-    location: CellLocation;
+    locations: CellLocation[];
     value: 0 | 1;
     // Which cells contribute to solving this?
     constraintCells: CellLocation[];
