@@ -10,7 +10,7 @@ export class SplitRuns implements SolverStrategy {
             for (let j = 0; j < grid[i].length; j++) {
                 if (grid[i][j].value !== null) continue;
                 if (
-                    i > 1 &&
+                    i > 0 &&
                     i < grid.length - 1 &&
                     grid[i - 1][j].value === grid[i + 1][j].value &&
                     grid[i - 1][j].value !== null
@@ -28,7 +28,7 @@ export class SplitRuns implements SolverStrategy {
                     );
                 }
                 if (
-                    j > 1 &&
+                    j > 0 &&
                     j < grid[i].length - 1 &&
                     grid[i][j - 1].value === grid[i][j + 1].value &&
                     grid[i][j - 1].value !== null
