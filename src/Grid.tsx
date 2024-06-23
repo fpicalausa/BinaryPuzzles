@@ -46,17 +46,6 @@ export function Grid({
                                 e.preventDefault();
                                 return false;
                             }}
-                            onTouchStart={(e) => {
-                                if (cell.isInitial && grid.isLocked()) {
-                                    return false;
-                                }
-
-                                setCell(i, j, next(cell.value));
-                                cleaHint();
-
-                                e.preventDefault();
-                                return false;
-                            }}
                             onClick={(e) => {
                                 if (cell.isInitial && grid.isLocked()) {
                                     return false;
