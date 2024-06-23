@@ -1,3 +1,5 @@
+import { projectColumn, projectRow } from './projection.ts';
+
 function buildInitialState(size: number, previousGrid: GridState = []) {
     const array: GridState = [];
     for (let i = 0; i < size; i++) {
@@ -64,18 +66,6 @@ export class GameGrid {
         this.updateState();
     }
 
-    private projectRow(index: number) {
-        return this._state[index];
-    }
-
-    private projectColumn(index: number) {
-        let col = [];
-        for (let i = 0; i < this._size; i++) {
-            col.push(this._state[i][index]);
-        }
-        return col;
-    }
-
     private setRowError(index: number) {
         for (let i = 0; i < this._size; i++) {
             this._state[index][i].error = 'row';
@@ -137,7 +127,7 @@ export class GameGrid {
         }
 
         for (let row = 0; row < this._size; row++) {
-            const rowCells = this.projectRow(row);
+            const rowCells = projectRow(this._state, row);
 
             if (!this.isValidRowOrColumn(rowCells)) {
                 this.setRowError(row);
@@ -154,7 +144,7 @@ export class GameGrid {
 
         const columnsSignature: Record<string, number> = {};
         for (let col = 0; col < this._size; col++) {
-            const rowCells = this.projectColumn(col);
+            const rowCells = projectColumn(this._state, col);
 
             if (!this.isValidRowOrColumn(rowCells)) {
                 this.setColumnError(col);
