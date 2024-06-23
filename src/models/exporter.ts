@@ -1,28 +1,35 @@
 type ExportOptions = {
     boldInitialValues: boolean;
-    marks: { location: [number, number] }[];
+    marks: [number, number][];
     markSymbol: string;
+};
+
+const defaultOptions: ExportOptions = {
+    boldInitialValues: true,
+    marks: [],
+    markSymbol: 'x',
 };
 
 export function stateToString(
     state: GridState,
-    options: ExportOptions = {
-        boldInitialValues: false,
-        marks: [],
-        markSymbol: 'x',
-    },
+    options?: Partial<ExportOptions>,
 ) {
+    const opts: ExportOptions = {
+        ...defaultOptions,
+        ...options,
+    };
+
     return state
         .map((row, i) => {
             return row
                 .map((cell, j) => {
-                    for (const loc of options.marks) {
-                        if (!(loc.location[0] !== i || loc.location[1] !== j)) {
-                            return options.markSymbol;
+                    for (const loc of opts.marks) {
+                        if (!(loc[0] !== i || loc[1] !== j)) {
+                            return opts.markSymbol;
                         }
                     }
 
-                    if (cell.isInitial && options.boldInitialValues) {
+                    if (cell.isInitial && opts.boldInitialValues) {
                         return cell.value === 1 ? '𝟭' : '𝟎';
                     }
 
