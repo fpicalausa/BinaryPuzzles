@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { loadGameData } from '../models/loader.ts';
 import { TerminateRuns } from './TerminateRuns.ts';
-import { stateToString } from '../models/exporter.ts';
 
 describe('TerminateRuns', () => {
     it('terminates runs', () => {
