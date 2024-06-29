@@ -1,12 +1,4 @@
 import { describe, expect, it, test } from 'vitest';
-import {
-    computeCandidateStatistics,
-    computeRowSignature,
-    findPossibleDuplicateRows,
-    GuessLastDigitWithDuplicateRow,
-    instersect,
-    registerRowSignature,
-} from './GuessLastDigitWithDuplicateRow.ts';
 import { loadGameData } from '../models/loader.ts';
 import {
     computeRunLength,
