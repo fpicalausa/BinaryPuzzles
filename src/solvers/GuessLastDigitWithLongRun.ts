@@ -1,4 +1,4 @@
-import { projectColumnVales, projectRowValues } from '../models/projection.ts';
+import { projectColumnValues, projectRowValues } from '../models/projection.ts';
 type RunStart = [number | null, number | null];
 
 export function computeRunLength(row: CellValue[]) {
@@ -132,7 +132,7 @@ export class GuessLastDigitWithLongRun implements SolverStrategy {
                 );
             });
 
-            const col = projectColumnVales(grid, i);
+            const col = projectColumnValues(grid, i);
             addResult(col, (row, val, runStart) => {
                 result.push(
                     GuessLastDigitWithLongRun.buildStepOverrun(

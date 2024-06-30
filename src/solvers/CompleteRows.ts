@@ -1,4 +1,4 @@
-import { projectColumnVales, projectRowValues } from '../models/projection.ts';
+import { projectColumnValues, projectRowValues } from '../models/projection.ts';
 
 export class CompleteRows implements SolverStrategy {
     name = 'Complete rows';
@@ -17,7 +17,7 @@ export class CompleteRows implements SolverStrategy {
         }
 
         for (let i = 0; i < grid[0].length; i++) {
-            const row = projectColumnVales(grid, i);
+            const row = projectColumnValues(grid, i);
             const step = this.computeHintsForRow([0, i], [1, 0], row);
             if (step) {
                 result.push(step);

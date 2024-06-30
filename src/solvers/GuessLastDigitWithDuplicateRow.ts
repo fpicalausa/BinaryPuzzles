@@ -1,4 +1,4 @@
-import { projectColumnVales, projectRowValues } from '../models/projection.ts';
+import { projectColumnValues, projectRowValues } from '../models/projection.ts';
 
 export function instersect(
     set1: Set<number> | undefined,
@@ -116,7 +116,7 @@ export class GuessLastDigitWithDuplicateRow implements SolverStrategy {
         let candidates: [0 | 1, number, CellValue[], number[]][] = [];
 
         for (let i = 0; i < grid.length; i++) {
-            const col = projectColumnVales(grid, i);
+            const col = projectColumnValues(grid, i);
             computeCandidateStatistics(col, i, signatures, candidates);
         }
 

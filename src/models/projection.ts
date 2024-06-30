@@ -13,6 +13,6 @@ export function projectRowValues(state: GridState, index: number) {
     return projectRow(state, index).map((cell) => cell.value);
 }
 
-export function projectColumnVales(state: GridState, index: number) {
+export function projectColumnValues(state: GridState, index: number) {
     return projectColumn(state, index).map((cell) => cell.value);
 }
