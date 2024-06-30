@@ -76,4 +76,33 @@ describe('GuessLastDigitWithLongRun', () => {
             expect(steps[i]).toEqual(expectedSteps[i]);
         }
     });
+    it('hints at avoiding three runs (2)', () => {
+        const state = loadGameData(
+            [
+                ' 1 0  0 ',
+                '1  x  0 ',
+                '  1  010',
+                '    1 01',
+                '    0110',
+                ' 011001 ',
+                '   0110 ',
+                '11001010',
+            ].join('\n'),
+        );
+
+        const steps = new GuessLastDigitWithLongRun().findCandidates(state);
+
+        console.error(JSON.stringify(steps));
+
+        const expectedSteps = [
+            expect.objectContaining({
+                locations: [[1, 3]],
+                value: 1,
+            }),
+        ];
+
+        for (let i = 0; i < expectedSteps.length; i++) {
+            expect(steps[i]).toEqual(expectedSteps[i]);
+        }
+    });
 });
