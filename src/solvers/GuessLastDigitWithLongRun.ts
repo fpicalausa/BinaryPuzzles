@@ -170,7 +170,7 @@ export class GuessLastDigitWithLongRun implements SolverStrategy {
             locations: [location],
             value,
             constraintCells,
-            explanation: `This ${isRow ? 'row' : 'column'} is missing a single ${value === 0 ? 1 : 0}. If this cell is a ${value === 0 ? 1 : 0}, then the other 3 cells in this ${isRow ? 'row' : 'column'} must be ${value}.`,
+            explanation: `This ${isRow ? 'row' : 'column'} is missing a single ${value === 0 ? 1 : 0}. If this cell is a ${value === 0 ? 1 : 0}, then the other 3 cells in this ${isRow ? 'row' : 'column'} must be ${value}. Hence this cell must be a ${value}.`,
         };
     }
 }
