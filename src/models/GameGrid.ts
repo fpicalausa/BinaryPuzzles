@@ -209,4 +209,13 @@ export class GameGrid {
         this._state = state;
         this.updateState();
     }
+
+    getStateCopy() {
+        return this._state.map((row) => row.map((cell) => ({ ...cell })));
+    }
+
+    setState(state: GridState) {
+        this._state = state;
+        this.updateState();
+    }
 }

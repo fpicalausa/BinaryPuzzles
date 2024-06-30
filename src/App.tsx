@@ -14,7 +14,8 @@ function Game() {
     const [level, setLevel] = useState<string | null>(null);
     const [hint, setHint] = useState<Step | null>(null);
 
-    const { grid, clear, resize, lockGrid, load } = useContext(gameGridContext);
+    const { grid, clear, resize, lockGrid, load, setState } =
+        useContext(gameGridContext);
 
     function computeNextHint() {
         for (let solver of solvers) {
@@ -24,6 +25,29 @@ function Game() {
             setHint(steps[0]);
             return;
         }
+    }
+
+    function autoSolve() {
+        if (grid.isValid()) return;
+
+        let steps: Step[] = [];
+        const state = grid.getStateCopy();
+
+        do {
+            for (const step of steps) {
+                for (const location of step.locations) {
+                    state[location[0]][location[1]].value = step.value;
+                }
+            }
+
+            steps = [];
+            for (let solver of solvers) {
+                steps.push(...solver.findCandidates(state));
+                if (steps.length) break; // Apply the low cost strategies first
+            }
+        } while (steps.length);
+
+        setState(state);
     }
 
     return (
@@ -101,7 +125,10 @@ function Game() {
             {hint && <div className="hint-details">{hint.explanation}</div>}
             <div className="game-controls">
                 {grid.isLocked() && (
-                    <button onClick={computeNextHint}>Hint</button>
+                    <>
+                        <button onClick={computeNextHint}>Hint</button>
+                        <button onClick={autoSolve}>Auto-solve</button>
+                    </>
                 )}
                 {!grid.isLocked() && (
                     <button onClick={() => lockGrid()}>Start Playing</button>

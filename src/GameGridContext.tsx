@@ -8,21 +8,25 @@ import {
 import { GameGrid } from './models/GameGrid.ts';
 import { loadGameData } from './models/loader.ts';
 
-export const gameGridContext = createContext<{
+const defaultValue: ContextType = {
+    grid: new GameGrid(10),
+    resize: () => {},
+    setCell: () => {},
+    setState: () => {},
+    lockGrid: () => {},
+    clear: () => {},
+    load: () => {},
+};
+type ContextType = {
     grid: GameGrid;
     resize: (newSize: number) => void;
     setCell: (x: number, y: number, value: CellValue) => void;
     lockGrid: () => void;
+    setState: (sate: GridState) => void;
     clear: () => void;
     load: (data: string) => void;
-}>({
-    grid: new GameGrid(10),
-    resize: () => {},
-    setCell: () => {},
-    lockGrid: () => {},
-    clear: () => {},
-    load: () => {},
-});
+};
+export const gameGridContext = createContext<ContextType>(defaultValue);
 
 function useForceRefresh(): [unknown, () => void] {
     const [token, setRefresh] = useState<unknown>(null);
@@ -50,7 +54,7 @@ export function GameGridContextProvider(props: {
     // @ts-ignore
     globalThis.gameGrid = grid;
 
-    const value = useMemo(
+    const value: ContextType = useMemo(
         () => ({
             grid,
             resize: (size: number) => {
@@ -70,6 +74,10 @@ export function GameGridContextProvider(props: {
             },
             lockGrid: () => {
                 grid.lockGrid();
+                refresh();
+            },
+            setState: (state: GridState) => {
+                grid.setState(state);
                 refresh();
             },
             clear: () => {
