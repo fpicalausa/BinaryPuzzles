@@ -1,4 +1,4 @@
-import { projectColumn, projectRow } from './projection.ts';
+import { getCounts, projectColumn, projectRow } from './projection.ts';
 
 function buildInitialState(size: number, previousGrid: GridState = []) {
     const array: GridState = [];
@@ -17,6 +17,7 @@ function buildInitialState(size: number, previousGrid: GridState = []) {
 }
 export class GameGrid {
     private _size: number;
+    // Todo: keep a transposed state to make things faster
     private _state: GridState;
     private _isInitial: boolean;
     private _isValid: boolean;
@@ -79,21 +80,7 @@ export class GameGrid {
     }
 
     private isValidRowOrColumn(cells: CellState[]) {
-        // A row/column is only valid if it has the same number of 0 and 1
-        let num0 = 0,
-            num1 = 0;
-
-        for (let i = 0; i < this._size; i++) {
-            switch (cells[i].value) {
-                case 0:
-                    num0++;
-                    break;
-                case 1:
-                    num1++;
-                    break;
-            }
-        }
-
+        const [num0, num1] = getCounts(cells.map((c) => c.value));
         return num0 <= this._size / 2 && num1 <= this._size / 2;
     }
 
