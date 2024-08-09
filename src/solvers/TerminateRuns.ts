@@ -1,3 +1,6 @@
+import { SolverStrategy, Step } from './types.ts';
+import { GridState } from '../models/GridState.ts';
+
 export class TerminateRuns implements SolverStrategy {
     name = 'Terminate Runs';
     description =
@@ -5,19 +8,20 @@ export class TerminateRuns implements SolverStrategy {
     findCandidates(grid: GridState): Step[] {
         // Find existing runs of two 0 or two 1 and terminate the run with the opposite value
         const result: Step[] = [];
+        const [rows, cols] = grid.getSize();
 
-        for (let i = 0; i < grid.length; i++) {
-            for (let j = 0; j < grid[i].length; j++) {
-                if (grid[i][j].value !== null) continue;
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (grid.getCell(i, j) !== null) continue;
                 if (
                     i > 1 &&
-                    grid[i - 2][j].value === grid[i - 1][j].value &&
-                    grid[i - 1][j].value !== null
+                    grid.getCell(i - 2, j) === grid.getCell(i - 1, j) &&
+                    grid.getCell(i - 1, j) !== null
                 ) {
                     result.push(
                         TerminateRuns.buildStep(
                             [i, j],
-                            grid[i - 1][j].value === 0 ? 1 : 0,
+                            grid.getCell(i - 1, j) === 0 ? 1 : 0,
                             'above',
                             [
                                 [i - 1, j],

@@ -1,4 +1,5 @@
-import { projectColumnValues, projectRowValues } from '../models/projection.ts';
+import { SolverStrategy, Step } from './types.ts';
+import { GridState } from '../models/GridState.ts';
 
 export function instersect(
     set1: Set<number> | undefined,
@@ -110,13 +111,13 @@ export class GuessLastDigitWithDuplicateRow implements SolverStrategy {
         ];
     }
 
-    private findColumnCandidates(grid: CellState[][]) {
+    private findColumnCandidates(grid: GridState) {
         const result: Step[] = [];
         let signatures: { [valueAndPos: string]: Set<number> } = {};
         let candidates: [0 | 1, number, CellValue[], number[]][] = [];
 
-        for (let i = 0; i < grid.length; i++) {
-            const col = projectColumnValues(grid, i);
+        for (let i = 0; i < grid.getSize()[1]; i++) {
+            const col = grid.getCol(i);
             computeCandidateStatistics(col, i, signatures, candidates);
         }
 
@@ -145,17 +146,15 @@ export class GuessLastDigitWithDuplicateRow implements SolverStrategy {
         return result;
     }
 
-    private findRowCandidates(grid: CellState[][]) {
+    private findRowCandidates(grid: GridState) {
         const result: Step[] = [];
         let signatures: { [valueAndPos: string]: Set<number> } = {};
         let candidates: [0 | 1, number, CellValue[], number[]][] = [];
 
-        for (let i = 0; i < grid.length; i++) {
-            const row = projectRowValues(grid, i);
+        for (let i = 0; i < grid.getSize()[0]; i++) {
+            const row = grid.getRow(i);
             computeCandidateStatistics(row, i, signatures, candidates);
         }
-
-        debugger;
 
         for (const [val, rowIndex, row, selfSig] of candidates) {
             // Check if any other row has val in the same positions

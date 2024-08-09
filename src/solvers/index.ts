@@ -3,6 +3,7 @@ import { SplitRuns } from './SplitRuns.ts';
 import { CompleteRows } from './CompleteRows.ts';
 import { GuessLastDigitWithDuplicateRow } from './GuessLastDigitWithDuplicateRow.ts';
 import { GuessLastDigitWithLongRun } from './GuessLastDigitWithLongRun.ts';
+import { SolverRegistry } from './types.ts';
 
 const solvers: SolverRegistry = [
     new CompleteRows(),

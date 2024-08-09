@@ -62,6 +62,7 @@ export function Grid({
                             className={[
                                 'cell',
                                 cell.isInitial ? 'initial' : '',
+                                showErrors && cell.error ? 'error' : '',
                                 showErrors && cell.error
                                     ? 'error-' + cell.error
                                     : '',

@@ -25,15 +25,11 @@
     background: #555;
 }
 
-.grid .cell.error-row {
+.grid .cell.error {
     background-color: #472300;
 }
 
-.grid .cell.error-column {
-    background-color: #472300;
-}
-
-.grid .cell.error-cell {
+.grid .cell.error.error-three {
     background-color: #5d0000;
 }
 

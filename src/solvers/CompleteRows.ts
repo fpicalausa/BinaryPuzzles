@@ -1,4 +1,5 @@
-import { projectColumnValues, projectRowValues } from '../models/projection.ts';
+import { GridState } from '../models/GridState.ts';
+import { SolverStrategy, Step } from './types.ts';
 
 export class CompleteRows implements SolverStrategy {
     name = 'Complete rows';
@@ -7,17 +8,18 @@ export class CompleteRows implements SolverStrategy {
     findCandidates(grid: GridState): Step[] {
         // Find existing runs of two 0 or two 1 and terminate the run with the opposite value
         const result: Step[] = [];
+        const [rows, cols] = grid.getSize();
 
-        for (let i = 0; i < grid.length; i++) {
-            const row = projectRowValues(grid, i);
+        for (let i = 0; i < rows; i++) {
+            const row = grid.getRow(i);
             const step = this.computeHintsForRow([i, 0], [0, 1], row);
             if (step) {
                 result.push(step);
             }
         }
 
-        for (let i = 0; i < grid[0].length; i++) {
-            const row = projectColumnValues(grid, i);
+        for (let i = 0; i < cols; i++) {
+            const row = grid.getCol(i);
             const step = this.computeHintsForRow([0, i], [1, 0], row);
             if (step) {
                 result.push(step);
