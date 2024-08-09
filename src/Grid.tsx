@@ -1,6 +1,8 @@
 import './grid.css';
 import { useContext } from 'react';
 import { gameGridContext } from './GameGridContext.tsx';
+import { Step } from './solvers/types.ts';
+import { CellMeta } from './models/GameGrid.ts';
 
 function next(value: 0 | 1 | null) {
     switch (value) {
@@ -13,73 +15,92 @@ function next(value: 0 | 1 | null) {
     }
 }
 
+function Cell(props: {
+    value: CellValue;
+    meta: CellMeta;
+    onChange: (value: CellValue) => void;
+    showErrors: boolean;
+    hint: {
+        isConstraint: boolean;
+        isTarget: boolean;
+    };
+}) {
+    return (
+        <div
+            onContextMenu={(e) => {
+                e.preventDefault();
+                return false;
+            }}
+            onClick={(e) => {
+                if (e.buttons === 0) {
+                    props.onChange(next(props.value));
+                }
+
+                e.preventDefault();
+                return false;
+            }}
+            className={[
+                'cell',
+                props.meta.isLocked ? 'initial' : '',
+                props.showErrors && props.meta.errors?.size ? 'error' : '',
+                props.showErrors && props.meta.errors?.size
+                    ? 'error-' + props.meta.errors.values().next()
+                    : '',
+                props.hint.isTarget ? 'hint' : '',
+                props.hint.isConstraint ? 'hint-constraint' : '',
+            ].join(' ')}>
+            {props.value}
+        </div>
+    );
+}
+
 export function Grid({
     showErrors,
     level,
     hint,
-    cleaHint,
+    clearHint,
 }: {
     showErrors: boolean;
     level: string | null;
     hint: Step | null;
-    cleaHint: () => void;
+    clearHint: () => void;
 }) {
     const { grid, setCell } = useContext(gameGridContext);
+    const size = grid.getSize();
 
-    const state: GridState = grid.getState();
     return (
         <div>
             <div>
                 {level ? level : ''}
-                {`${grid.getSize()}x${grid.getSize()}`} puzzle
+                {`${size[0]}x${size[1]}`} puzzle
             </div>
             <div
                 className="grid"
                 style={{
-                    gridTemplateColumns: 'repeat(' + grid.getSize() + ', auto)',
+                    gridTemplateColumns: 'repeat(' + size[1] + ', auto)',
                 }}>
-                {state.map((row, i) =>
-                    row.map((cell, j) => (
-                        <div
-                            key={`cell_${i}_${j}`}
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                                return false;
-                            }}
-                            onClick={(e) => {
-                                if (cell.isInitial && grid.isLocked()) {
-                                    return false;
-                                }
-
-                                if (e.buttons === 0) {
-                                    setCell(i, j, next(cell.value));
-                                    cleaHint();
-                                }
-
-                                e.preventDefault();
-                                return false;
-                            }}
-                            className={[
-                                'cell',
-                                cell.isInitial ? 'initial' : '',
-                                showErrors && cell.error
-                                    ? 'error-' + cell.error
-                                    : '',
-                                hint?.locations.some(
-                                    (l) => l[0] === i && l[1] === j,
-                                )
-                                    ? 'hint'
-                                    : '',
+                {grid.map(([i, j], value, meta) => (
+                    <Cell
+                        key={`cell_${i}_${j}`}
+                        value={value}
+                        meta={meta}
+                        onChange={(value) => {
+                            setCell(i, j, value);
+                            clearHint();
+                        }}
+                        showErrors={showErrors}
+                        hint={{
+                            isConstraint:
                                 hint?.constraintCells.some(
-                                    (c) => c[0] === i && c[1] === j,
-                                )
-                                    ? 'hint-constraint'
-                                    : '',
-                            ].join(' ')}>
-                            {cell.value}
-                        </div>
-                    )),
-                )}
+                                    ([x, y]) => x === i && y === j,
+                                ) || false,
+                            isTarget:
+                                hint?.locations.some(
+                                    ([x, y]) => x === i && y === j,
+                                ) || false,
+                        }}
+                    />
+                ))}
             </div>
         </div>
     );

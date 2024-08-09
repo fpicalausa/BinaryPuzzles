@@ -9,22 +9,22 @@ import { GameGrid } from './models/GameGrid.ts';
 import { loadGameData } from './models/loader.ts';
 
 const defaultValue: ContextType = {
-    grid: new GameGrid(10),
+    grid: new GameGrid([10, 10]),
     resize: () => {},
     setCell: () => {},
-    setState: () => {},
     lockGrid: () => {},
     clear: () => {},
     load: () => {},
+    refresh: () => {},
 };
 type ContextType = {
     grid: GameGrid;
-    resize: (newSize: number) => void;
+    resize: (newSize: [number, number]) => void;
     setCell: (x: number, y: number, value: CellValue) => void;
     lockGrid: () => void;
-    setState: (sate: GridState) => void;
     clear: () => void;
     load: (data: string) => void;
+    refresh: () => void;
 };
 export const gameGridContext = createContext<ContextType>(defaultValue);
 
@@ -39,13 +39,15 @@ export function GameGridContextProvider(props: {
     children: ReactNode;
 }) {
     const [grid, setGrid] = useState(() => {
-        const result = new GameGrid(props.initialSize);
+        const result = new GameGrid([props.initialSize, props.initialSize]);
 
         const saved = localStorage.getItem('current-game');
         if (!saved) return result;
         let state = JSON.parse(saved);
-        result.loadState(state.grid);
-        if (state.locked) result.lockGrid();
+        try {
+            result.loadState(state.grid);
+            if (state.locked) result.lockGrid();
+        } catch (e) {}
 
         return result;
     });
@@ -57,7 +59,7 @@ export function GameGridContextProvider(props: {
     const value: ContextType = useMemo(
         () => ({
             grid,
-            resize: (size: number) => {
+            resize: (size: [number, number]) => {
                 grid.resize(size);
                 refresh();
             },
@@ -76,10 +78,6 @@ export function GameGridContextProvider(props: {
                 grid.lockGrid();
                 refresh();
             },
-            setState: (state: GridState) => {
-                grid.setState(state);
-                refresh();
-            },
             clear: () => {
                 setGrid(new GameGrid(grid.getSize()));
                 localStorage.removeItem('current-game');
@@ -91,6 +89,7 @@ export function GameGridContextProvider(props: {
                 grid.lockGrid();
                 refresh();
             },
+            refresh,
         }),
         [token],
     );

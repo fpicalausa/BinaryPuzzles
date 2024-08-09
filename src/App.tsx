@@ -8,13 +8,47 @@ import {
 import games from './assets/games/games.ts';
 import { extractPuzzleFromUrl } from './gameGridImporter.ts';
 import solvers from './solvers';
+import { Step } from './solvers/types.ts';
+
+function SizeInput(props: {
+    value: GridSize;
+    disabled: boolean;
+    onChange: (value: GridSize) => void;
+}) {
+    return (
+        <>
+            <input
+                disabled={props.disabled}
+                type="number"
+                aria-label="Width"
+                value={props.value[0]}
+                step={2}
+                onChange={(e) => {
+                    const newSize = e.currentTarget.valueAsNumber;
+                    props.onChange([newSize, props.value[1]]);
+                }}
+            />
+            <input
+                disabled={props.disabled}
+                aria-label="Height"
+                type="number"
+                value={props.value[1]}
+                step={2}
+                onChange={(e) => {
+                    const newSize = e.currentTarget.valueAsNumber;
+                    props.onChange([props.value[0], newSize]);
+                }}
+            />
+        </>
+    );
+}
 
 function Game() {
     const [showErrors, setShowErrors] = useState(true);
     const [level, setLevel] = useState<string | null>(null);
     const [hint, setHint] = useState<Step | null>(null);
 
-    const { grid, clear, resize, lockGrid, load, setState } =
+    const { grid, clear, resize, lockGrid, load, refresh } =
         useContext(gameGridContext);
 
     function computeNextHint() {
@@ -31,38 +65,33 @@ function Game() {
         if (grid.isValid()) return;
 
         let steps: Step[] = [];
-        const state = grid.getStateCopy();
+        const state = grid.getState();
 
         do {
             for (const step of steps) {
-                for (const location of step.locations) {
-                    state[location[0]][location[1]].value = step.value;
+                for (const [x, y] of step.locations) {
+                    state.setCell(x, y, step.value);
                 }
             }
 
             steps = [];
             for (let solver of solvers) {
                 steps.push(...solver.findCandidates(state));
-                if (steps.length) break; // Apply the low cost strategies first
+                if (steps.length) break; // Apply the low-cost strategies first
             }
         } while (steps.length);
 
-        setState(state);
+        refresh();
     }
 
     return (
         <>
             <label>
-                Size:
-                <input
-                    disabled={grid.isLocked()}
-                    type="number"
+                Size:{' '}
+                <SizeInput
                     value={grid.getSize()}
-                    step={2}
-                    onChange={(e) => {
-                        const newSize = e.currentTarget.valueAsNumber;
-                        resize(newSize);
-                    }}
+                    disabled={grid.isLocked()}
+                    onChange={resize}
                 />
             </label>
             <label>
@@ -119,7 +148,7 @@ function Game() {
                 showErrors={showErrors}
                 level={level}
                 hint={hint}
-                cleaHint={() => setHint(null)}
+                clearHint={() => setHint(null)}
             />
             {grid.isValid() && <div className="solved">Solved</div>}
             {hint && <div className="hint-details">{hint.explanation}</div>}

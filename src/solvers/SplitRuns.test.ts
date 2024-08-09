@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { loadGameData } from '../models/loader.ts';
 import { SplitRuns } from './SplitRuns.ts';
+import { DefaultGridState } from '../models/DefaultGridState.ts';
 
 describe('SplitRuns', () => {
     it('splits horizontal runs', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             ['      ', '  0 0 ', '      ', ' 1 1  ', '      ', '      '].join(
                 '\n',
             ),
@@ -38,7 +39,8 @@ describe('SplitRuns', () => {
     });
 
     it('splits vertical runs', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             ['      ', ' 0  1 ', '      ', ' 0  1 ', '      ', '      '].join(
                 '\n',
             ),
@@ -71,8 +73,8 @@ describe('SplitRuns', () => {
         }
     });
     it('splits runs at edge', () => {
-        console.error('hello');
-        const state = loadGameData(['0 0 ', '   0', '0  ', ' 0 0'].join('\n'));
+        const state = new DefaultGridState();
+        state.loadFromString(['0 0 ', '   0', '0  ', ' 0 0'].join('\n'));
 
         const steps = new SplitRuns().findCandidates(state);
 

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { loadGameData } from '../models/loader.ts';
 import { TerminateRuns } from './TerminateRuns.ts';
+import { DefaultGridState } from '../models/DefaultGridState.ts';
 
 describe('TerminateRuns', () => {
     it('terminates runs', () => {
-        const state = loadGameData(['    ', ' 00 ', ' 00 ', '    '].join('\n'));
+        const state = new DefaultGridState();
+        state.loadFromString(['    ', ' 00 ', ' 00 ', '    '].join('\n'));
 
         const steps = new TerminateRuns().findCandidates(state);
 
@@ -50,7 +51,8 @@ describe('TerminateRuns', () => {
     });
 
     it('terminates runs at the border', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             ['00  00', '0    0', '      ', '      ', '1    1', '11  11'].join(
                 '\n',
             ),

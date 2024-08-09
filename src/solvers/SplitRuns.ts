@@ -1,3 +1,6 @@
+import { SolverStrategy, Step } from './types.ts';
+import { GridState } from '../models/GridState.ts';
+
 export class SplitRuns implements SolverStrategy {
     name = 'Split Runs';
     description =
@@ -6,19 +9,20 @@ export class SplitRuns implements SolverStrategy {
         // Find existing runs of two 0 or two 1 and terminate the run with the opposite value
         const result: Step[] = [];
 
-        for (let i = 0; i < grid.length; i++) {
-            for (let j = 0; j < grid[i].length; j++) {
-                if (grid[i][j].value !== null) continue;
+        const [rows, cols] = grid.getSize();
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+                if (grid.getCell(i, j) !== null) continue;
                 if (
                     i > 0 &&
-                    i < grid.length - 1 &&
-                    grid[i - 1][j].value === grid[i + 1][j].value &&
-                    grid[i - 1][j].value !== null
+                    i < rows - 1 &&
+                    grid.getCell(i - 1, j) === grid.getCell(i + 1, j) &&
+                    grid.getCell(i - 1, j) !== null
                 ) {
                     result.push(
                         SplitRuns.buildStep(
                             [i, j],
-                            grid[i - 1][j].value === 0 ? 1 : 0,
+                            grid.getCell(i - 1, j) === 0 ? 1 : 0,
                             'horizontally',
                             [
                                 [i - 1, j],
@@ -29,14 +33,14 @@ export class SplitRuns implements SolverStrategy {
                 }
                 if (
                     j > 0 &&
-                    j < grid[i].length - 1 &&
-                    grid[i][j - 1].value === grid[i][j + 1].value &&
-                    grid[i][j - 1].value !== null
+                    j < cols - 1 &&
+                    grid.getCell(i, j - 1) === grid.getCell(i, j + 1) &&
+                    grid.getCell(i, j - 1) !== null
                 ) {
                     result.push(
                         SplitRuns.buildStep(
                             [i, j],
-                            grid[i][j - 1].value === 0 ? 1 : 0,
+                            grid.getCell(i, j - 1) === 0 ? 1 : 0,
                             'to the left',
                             [
                                 [i, j - 1],

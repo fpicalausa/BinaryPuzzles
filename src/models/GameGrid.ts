@@ -1,32 +1,46 @@
-import { getCounts, projectColumn, projectRow } from './projection.ts';
+import { GridState } from './GridState.ts';
+import { DefaultGridState } from './DefaultGridState.ts';
+import { GameGridConstraints } from './GameGridConstraints.ts';
 
-function buildInitialState(size: number, previousGrid: GridState = []) {
-    const array: GridState = [];
-    for (let i = 0; i < size; i++) {
-        const row: GridState[0] = [];
-        for (let j = 0; j < size; j++) {
-            if (previousGrid.length > i && previousGrid[i].length > j) {
-                row.push(previousGrid[i][j]);
-            } else {
-                row.push({ value: null, isInitial: false, error: null });
-            }
-        }
-        array.push(row);
+export type CellMeta = { isLocked: boolean; errors: Set<CellErrorType> | null };
+
+export type StateSnapshot = {
+    size: [number, number];
+    values: CellValue[];
+    meta: CellMeta[];
+};
+
+const DEFAULT_CELL_META: CellMeta = {
+    isLocked: false,
+    errors: null,
+};
+
+function newGridMetas(size: GridSize): CellMeta[] {
+    const result: CellMeta[] = Array(size[0] * size[1]);
+    for (let i = 0; i < size[0] * size[1]; i++) {
+        result[i] = { ...DEFAULT_CELL_META };
     }
-    return array;
+
+    return result;
 }
+
 export class GameGrid {
-    private _size: number;
-    // Todo: keep a transposed state to make things faster
-    private _state: GridState;
+    private _size: [number, number];
+    private _state: DefaultGridState;
+    private _gridMeta: CellMeta[];
+    private _constraints: GameGridConstraints[];
     private _isInitial: boolean;
     private _isValid: boolean;
 
-    constructor(size: number) {
-        this._state = buildInitialState(size);
+    constructor(size: [number, number] = [0, 0]) {
+        this._state = new DefaultGridState(size);
+        this._gridMeta = newGridMetas(size);
         this._size = size;
         this._isInitial = true;
         this._isValid = false;
+        this._constraints = [
+            new GameGridConstraints(this._state, [0, 0], size),
+        ];
     }
 
     isValid() {
@@ -34,12 +48,18 @@ export class GameGrid {
     }
 
     debug() {
-        console.log(JSON.stringify(this._state));
+        console.log(JSON.stringify(this.getStateSnapshot()));
     }
 
-    resize(size: number) {
-        this._state = buildInitialState(size, this._state);
+    resize(size: [number, number]) {
+        this._state = new DefaultGridState(size);
+        this._gridMeta = newGridMetas(size);
         this._size = size;
+        this._isValid = true;
+        this._isInitial = true;
+        this._constraints = [
+            new GameGridConstraints(this._state, [0, 0], size),
+        ];
     }
 
     lockGrid() {
@@ -59,128 +79,39 @@ export class GameGrid {
     }
 
     setCell(x: number, y: number, value: CellValue) {
-        this._state[x][y] = {
-            value,
-            isInitial: this._isInitial && value !== null,
-            error: null,
-        };
+        const isCurrentlyLocked =
+            this._gridMeta[x * this._size[1] + y].isLocked;
+        if (!this._isInitial && isCurrentlyLocked) {
+            return;
+        }
+
+        this._state.setCell(x, y, value);
+        this._gridMeta[x * this._size[1] + y].isLocked =
+            this._isInitial && value !== null;
         this.updateState();
     }
 
-    private setRowError(index: number) {
-        for (let i = 0; i < this._size; i++) {
-            this._state[index][i].error = 'row';
-        }
-    }
-
-    private setColumnError(index: number) {
-        for (let i = 0; i < this._size; i++) {
-            this._state[i][index].error = 'column';
-        }
-    }
-
-    private isValidRowOrColumn(cells: CellState[]) {
-        const [num0, num1] = getCounts(cells.map((c) => c.value));
-        return num0 <= this._size / 2 && num1 <= this._size / 2;
-    }
-
-    private getRowColumnSignature(cells: CellState[]) {
-        // A row/column cannot be repeated
-
-        let signature = '';
-        for (let i = 0; i < this._size; i++) {
-            switch (cells[i].value) {
-                case 0:
-                    signature += '0';
-                    break;
-                case 1:
-                    signature += '1';
-                    break;
-                case null:
-                    return null;
-            }
-        }
-
-        return signature;
-    }
-
     private updateState() {
-        const rowsSignatures: Record<string, number> = {};
+        for (let i = 0; i < this._gridMeta.length; i++) {
+            this._gridMeta[i].errors?.clear();
+        }
 
-        for (let i = 0; i < this._size; i++) {
-            for (let j = 0; j < this._size; j++) {
-                this._state[i][j].error = null;
+        let isValid = true;
+
+        for (const constraint of this._constraints) {
+            const state = constraint.checkState();
+            isValid = isValid && state.isValid && state.isComplete;
+            for (let error of state.errors) {
+                const cellMeta =
+                    this._gridMeta[
+                        error.location[0] * this._size[1] + error.location[1]
+                    ];
+                cellMeta.errors = cellMeta.errors ?? new Set();
+                cellMeta.errors.add(error.error);
             }
         }
 
-        for (let row = 0; row < this._size; row++) {
-            const rowCells = projectRow(this._state, row);
-
-            if (!this.isValidRowOrColumn(rowCells)) {
-                this.setRowError(row);
-            }
-
-            const signature = this.getRowColumnSignature(rowCells);
-            if (!signature) continue;
-            if (signature in rowsSignatures) {
-                this.setRowError(row);
-                this.setRowError(rowsSignatures[signature]);
-            }
-            rowsSignatures[signature] = row;
-        }
-
-        const columnsSignature: Record<string, number> = {};
-        for (let col = 0; col < this._size; col++) {
-            const rowCells = projectColumn(this._state, col);
-
-            if (!this.isValidRowOrColumn(rowCells)) {
-                this.setColumnError(col);
-            }
-
-            const signature = this.getRowColumnSignature(rowCells);
-            if (!signature) continue;
-            if (signature in columnsSignature) {
-                this.setColumnError(col);
-                this.setColumnError(columnsSignature[signature]);
-            }
-            columnsSignature[signature] = col;
-        }
-
-        let hasUnfilledCell = false;
-        let hasError = false;
-
-        for (let i = 0; i < this._size; i++) {
-            for (let j = 0; j < this._size; j++) {
-                // The same digit can only repeat twice at most
-                if (
-                    i < this._size - 2 &&
-                    this._state[i][j].value !== null &&
-                    this._state[i][j].value === this._state[i + 1][j].value &&
-                    this._state[i][j].value === this._state[i + 2][j].value
-                ) {
-                    this._state[i][j].error = 'cell';
-                    this._state[i + 1][j].error = 'cell';
-                    this._state[i + 2][j].error = 'cell';
-                }
-
-                if (
-                    j < this._size - 2 &&
-                    this._state[i][j].value !== null &&
-                    this._state[i][j].value === this._state[i][j + 1].value &&
-                    this._state[i][j].value === this._state[i][j + 2].value
-                ) {
-                    this._state[i][j].error = 'cell';
-                    this._state[i][j + 1].error = 'cell';
-                    this._state[i][j + 2].error = 'cell';
-                }
-
-                hasUnfilledCell =
-                    hasUnfilledCell || this._state[i][j].value === null;
-                hasError = hasError || this._state[i][j].error !== null;
-            }
-        }
-
-        this._isValid = !hasUnfilledCell && !hasError;
+        this._isValid = isValid;
     }
 
     isLocked() {
@@ -188,21 +119,56 @@ export class GameGrid {
     }
 
     clear() {
-        this._state = buildInitialState(this._size);
+        this.resize(this._size);
     }
 
-    loadState(state: CellState[][]) {
-        this._size = state.length;
-        this._state = state;
+    loadState(state: StateSnapshot) {
+        if (state.values.length !== state.size[0] * state.size[1]) {
+            throw new Error(
+                "Invalid state snapshot: cell values don't match size",
+            );
+        }
+
+        if (state.meta.length !== state.size[0] * state.size[1]) {
+            throw new Error(
+                "Invalid state snapshot: cell meta don't match size",
+            );
+        }
+
+        this.resize(state.size);
+
+        this._state.load(state.values);
+        this._gridMeta = [...state.meta];
         this.updateState();
     }
 
-    getStateCopy() {
-        return this._state.map((row) => row.map((cell) => ({ ...cell })));
+    getStateSnapshot(): StateSnapshot {
+        const values = this._state.snapshot();
+        const meta: CellMeta[] = this._gridMeta.map((m) => ({
+            isLocked: m.isLocked,
+            errors: new Set(),
+        }));
+
+        return { size: [this._size[0], this._size[1]], values, meta };
     }
 
-    setState(state: GridState) {
-        this._state = state;
-        this.updateState();
+    map<T>(
+        fn: (loc: CellLocation, value: CellValue, meta: CellMeta) => T,
+    ): T[] {
+        const result: T[] = [];
+
+        for (let i = 0; i < this._size[0]; i++) {
+            for (let j = 0; j < this._size[1]; j++) {
+                result.push(
+                    fn(
+                        [i, j],
+                        this._state.getCell(i, j),
+                        this._gridMeta[i * this._size[1] + j],
+                    ),
+                );
+            }
+        }
+
+        return result;
     }
 }

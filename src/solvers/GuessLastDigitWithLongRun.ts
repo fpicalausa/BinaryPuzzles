@@ -1,4 +1,6 @@
-import { projectColumnValues, projectRowValues } from '../models/projection.ts';
+import { SolverStrategy, Step } from './types.ts';
+import { GridState } from '../models/GridState.ts';
+
 type RunStart = [number | null, number | null];
 
 export function computeRunLength(row: CellValue[]) {
@@ -119,8 +121,8 @@ export class GuessLastDigitWithLongRun implements SolverStrategy {
         // Find existing runs of two 0 or two 1 and terminate the run with the opposite value
         const result: Step[] = [];
 
-        for (let i = 0; i < grid.length; i++) {
-            const row = projectRowValues(grid, i);
+        for (let i = 0; i < grid.getSize()[0]; i++) {
+            const row = grid.getRow(i);
             addResult(row, (col, val, runStart) => {
                 result.push(
                     GuessLastDigitWithLongRun.buildStepOverrun(
@@ -131,8 +133,10 @@ export class GuessLastDigitWithLongRun implements SolverStrategy {
                     ),
                 );
             });
+        }
 
-            const col = projectColumnValues(grid, i);
+        for (let i = 0; i < grid.getSize()[1]; i++) {
+            const col = grid.getCol(i);
             addResult(col, (row, val, runStart) => {
                 result.push(
                     GuessLastDigitWithLongRun.buildStepOverrun(

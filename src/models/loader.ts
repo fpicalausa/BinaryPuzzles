@@ -1,3 +1,5 @@
+import { CellMeta, StateSnapshot } from './GameGrid.ts';
+
 function getNextEvenNumber(number: number) {
     if (number % 2 === 0) return number;
     return number + 1;
@@ -14,29 +16,37 @@ function stringToCellValue(value: string): CellValue {
     }
 }
 
-export function loadGameData(data: string) {
+export function loadGameData(data: string): StateSnapshot {
     const values = data.split('\n').map((row) => row.split(''));
 
-    const state: GridState = [];
+    const size: [number, number] = [
+        getNextEvenNumber(Math.max(...values.map((row) => row.length))),
+        getNextEvenNumber(values.length),
+    ];
 
-    const size = getNextEvenNumber(
-        Math.max(values.length, ...values.map((row) => row.length)),
-    );
+    const result: {
+        size: [number, number];
+        values: CellValue[];
+        meta: CellMeta[];
+    } = {
+        size,
+        values: [],
+        meta: [],
+    };
 
-    for (let i = 0; i < size; i++) {
-        state.push([]);
-        for (let j = 0; j < size; j++) {
+    for (let i = 0; i < size[0]; i++) {
+        for (let j = 0; j < size[1]; j++) {
             const cellValue =
                 i < values.length && j < values[i].length
                     ? stringToCellValue(values[i][j])
                     : null;
-            state[i].push({
-                isInitial: cellValue !== null,
-                value: cellValue,
-                error: null,
+            result.values.push(cellValue);
+            result.meta.push({
+                isLocked: cellValue !== null,
+                errors: new Set(),
             });
         }
     }
 
-    return state;
+    return result;
 }
