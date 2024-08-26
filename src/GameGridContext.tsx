@@ -16,6 +16,9 @@ const defaultValue: ContextType = {
     clear: () => {},
     load: () => {},
     refresh: () => {},
+    setConstraintMode: () => {},
+    isSettingConstraint: false,
+    addConstraint() {},
 };
 type ContextType = {
     grid: GameGrid;
@@ -25,6 +28,9 @@ type ContextType = {
     clear: () => void;
     load: (data: string) => void;
     refresh: () => void;
+    setConstraintMode: () => void;
+    isSettingConstraint: boolean;
+    addConstraint(tl: CellLocation, br: CellLocation): void;
 };
 export const gameGridContext = createContext<ContextType>(defaultValue);
 
@@ -38,6 +44,7 @@ export function GameGridContextProvider(props: {
     initialSize: number;
     children: ReactNode;
 }) {
+    const [constraintsMode, setConstraintsMode] = useState(false);
     const [grid, setGrid] = useState(() => {
         const result = new GameGrid([props.initialSize, props.initialSize]);
 
@@ -90,8 +97,16 @@ export function GameGridContextProvider(props: {
                 refresh();
             },
             refresh,
+            addConstraint(tl: CellLocation, br: CellLocation) {
+                grid.addConstraint(tl, br);
+                setConstraintsMode(false);
+            },
+            isSettingConstraint: constraintsMode,
+            setConstraintMode() {
+                setConstraintsMode(true);
+            },
         }),
-        [token],
+        [token, constraintsMode],
     );
 
     return (

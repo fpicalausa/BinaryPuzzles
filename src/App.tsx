@@ -48,7 +48,7 @@ function Game() {
     const [level, setLevel] = useState<string | null>(null);
     const [hint, setHint] = useState<Step | null>(null);
 
-    const { grid, clear, resize, lockGrid, load, refresh } =
+    const { grid, clear, resize, lockGrid, load, refresh, setConstraintMode } =
         useContext(gameGridContext);
 
     function computeNextHint() {
@@ -59,6 +59,25 @@ function Game() {
             setHint(steps[0]);
             return;
         }
+    }
+
+    async function loadGameFromUrl() {
+        const firstPuzzleDate = new Date(2011, 3, 8);
+        const today = new Date();
+        // Incorrect, but good enough for now
+        const daysElapsed = Math.trunc(
+            today.getTime() - (firstPuzzleDate.getTime() / 24) * 3600 * 1000,
+        );
+        const defaultUrl =
+            'https://www.binarypuzzle.com/daypuzzle.php?id=' +
+            (1 + daysElapsed);
+        const url = prompt('url?', defaultUrl);
+        if (!url) return;
+
+        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+        load(await extractPuzzleFromUrl(proxyUrl));
+        grid.lockGrid();
+        return;
     }
 
     function autoSolve() {
@@ -108,20 +127,9 @@ function Game() {
                     onChange={async (e) => {
                         const game = e.currentTarget.value;
                         setLevel(null);
-
                         if (!game) return;
                         if (game === 'url') {
-                            const url = prompt(
-                                'url?',
-                                'https://www.binarypuzzle.com/index.php',
-                            );
-                            if (!url) return;
-
-                            const proxyUrl =
-                                'https://corsproxy.io/?' +
-                                encodeURIComponent(url);
-                            load(await extractPuzzleFromUrl(proxyUrl));
-                            grid.lockGrid();
+                            await loadGameFromUrl();
                             return;
                         }
 
@@ -132,7 +140,7 @@ function Game() {
                     <option key="none" value="">
                         None
                     </option>
-                    <option key="url" value="url">
+                    <option key="url" value="url" onClick={loadGameFromUrl}>
                         From URL
                     </option>
                     {Object.keys(games)
@@ -161,6 +169,11 @@ function Game() {
                 )}
                 {!grid.isLocked() && (
                     <button onClick={() => lockGrid()}>Start Playing</button>
+                )}
+                {!grid.isLocked() && (
+                    <button onClick={() => setConstraintMode()}>
+                        Add constraint
+                    </button>
                 )}
                 <button onClick={clear}>Reset</button>
             </div>

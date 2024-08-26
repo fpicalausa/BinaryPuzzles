@@ -32,7 +32,7 @@ export class GameGrid {
     private _isInitial: boolean;
     private _isValid: boolean;
 
-    constructor(size: [number, number] = [0, 0]) {
+    constructor(size: GridSize = [0, 0]) {
         this._state = new DefaultGridState(size);
         this._gridMeta = newGridMetas(size);
         this._size = size;
@@ -41,6 +41,14 @@ export class GameGrid {
         this._constraints = [
             new GameGridConstraints(this._state, [0, 0], size),
         ];
+    }
+
+    addConstraint(tl: CellLocation, br: CellLocation) {
+        this._constraints.push(new GameGridConstraints(this._state, tl, br));
+    }
+
+    getConstraints(): GameGridConstraints[] {
+        return this._constraints;
     }
 
     isValid() {
