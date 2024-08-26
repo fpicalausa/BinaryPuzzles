@@ -65,15 +65,16 @@ function Game() {
     }
 
     async function loadGameFromUrl() {
-        const firstPuzzleDate = new Date(2011, 3, 8);
+        const firstPuzzleDate = new Date(2024, 0, 1);
         const today = new Date();
         // Incorrect, but good enough for now
         const daysElapsed = Math.trunc(
-            today.getTime() - (firstPuzzleDate.getTime() / 24) * 3600 * 1000,
+            (today.getTime() - firstPuzzleDate.getTime()) / (24 * 3600 * 1000),
         );
+        debugger;
         const defaultUrl =
             'https://www.binarypuzzle.com/daypuzzle.php?id=' +
-            (1 + daysElapsed);
+            (4684 + daysElapsed);
         const url = prompt('url?', defaultUrl);
         if (!url) return;
 
