@@ -1,5 +1,6 @@
-import { SolverStrategy, Step } from './types.ts';
+import { Step } from './types.ts';
 import { GridState } from '../models/GridState.ts';
+import { SimpleSolverStrategy } from './SimpleSolverStrategy.ts';
 
 type RunStart = [number | null, number | null];
 
@@ -113,7 +114,7 @@ function addResult(
     }
 }
 
-export class GuessLastDigitWithLongRun implements SolverStrategy {
+export class GuessLastDigitWithLongRun implements SimpleSolverStrategy {
     name = 'Guess last digit position';
     description =
         'If a row has all but one zeroes, check all blanks in that row and decide if placing the last zero would break the rules';

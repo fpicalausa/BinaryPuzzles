@@ -1,9 +1,10 @@
 import { GridState } from '../models/GridState.ts';
+import { GameGridConstraints } from '../models/GameGridConstraints.ts';
 
 export interface SolverStrategy {
     name: string;
     description: string;
-    findCandidates(grid: GridState): Step[];
+    findCandidates(grid: GridState, constraints: GameGridConstraints[]): Step[];
 }
 
 export type SolverRegistry = SolverStrategy[];

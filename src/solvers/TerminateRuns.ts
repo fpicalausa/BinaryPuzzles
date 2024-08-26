@@ -1,7 +1,8 @@
-import { SolverStrategy, Step } from './types.ts';
+import { Step } from './types.ts';
 import { GridState } from '../models/GridState.ts';
+import { SimpleSolverStrategy } from './SimpleSolverStrategy.ts';
 
-export class TerminateRuns implements SolverStrategy {
+export class TerminateRuns implements SimpleSolverStrategy {
     name = 'Terminate Runs';
     description =
         'At most 2 consecutive 0 or 1 are allowed. If two consecutive 0 are found, the next value must be a 1';

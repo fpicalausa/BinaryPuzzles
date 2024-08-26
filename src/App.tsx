@@ -53,7 +53,10 @@ function Game() {
 
     function computeNextHint() {
         for (let solver of solvers) {
-            const steps = solver.findCandidates(grid.getState());
+            const steps = solver.findCandidates(
+                grid.getState(),
+                grid.getConstraints(),
+            );
             if (!steps.length) continue;
 
             setHint(steps[0]);
@@ -95,7 +98,9 @@ function Game() {
 
             steps = [];
             for (let solver of solvers) {
-                steps.push(...solver.findCandidates(state));
+                steps.push(
+                    ...solver.findCandidates(state, grid.getConstraints()),
+                );
                 if (steps.length) break; // Apply the low-cost strategies first
             }
         } while (steps.length);

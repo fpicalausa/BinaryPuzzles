@@ -1,7 +1,8 @@
-import { SolverStrategy, Step } from './types.ts';
+import { Step } from './types.ts';
 import { GridState } from '../models/GridState.ts';
+import { SimpleSolverStrategy } from './SimpleSolverStrategy.ts';
 
-export class SplitRuns implements SolverStrategy {
+export class SplitRuns implements SimpleSolverStrategy {
     name = 'Split Runs';
     description =
         'At most 2 consecutive 0 or 1 are allowed. If two 0 are neighboring a cell horizontally or vertically, the middle value must be a 1';

@@ -1,7 +1,8 @@
 import { GridState } from '../models/GridState.ts';
-import { SolverStrategy, Step } from './types.ts';
+import { Step } from './types.ts';
+import { SimpleSolverStrategy } from './SimpleSolverStrategy.ts';
 
-export class CompleteRows implements SolverStrategy {
+export class CompleteRows implements SimpleSolverStrategy {
     name = 'Complete rows';
     description =
         'A row or column must have the same number of 1 or 0. If a row has has already all 1 (or 0) figured out, fill in the rest with 0. As a special case, this fills in the last cell of any row/column.';

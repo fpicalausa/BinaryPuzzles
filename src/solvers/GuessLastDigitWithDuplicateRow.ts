@@ -1,5 +1,6 @@
-import { SolverStrategy, Step } from './types.ts';
+import { Step } from './types.ts';
 import { GridState } from '../models/GridState.ts';
+import { SimpleSolverStrategy } from './SimpleSolverStrategy.ts';
 
 export function instersect(
     set1: Set<number> | undefined,
@@ -99,7 +100,7 @@ export function computeCandidateStatistics(
     ]);
 }
 
-export class GuessLastDigitWithDuplicateRow implements SolverStrategy {
+export class GuessLastDigitWithDuplicateRow implements SimpleSolverStrategy {
     name = 'Guess last digit position';
     description =
         'If a row has all but one zeroes, check all blanks in that row and decide if placing the last zero would break the rules';

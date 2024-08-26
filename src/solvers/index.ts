@@ -4,13 +4,16 @@ import { CompleteRows } from './CompleteRows.ts';
 import { GuessLastDigitWithDuplicateRow } from './GuessLastDigitWithDuplicateRow.ts';
 import { GuessLastDigitWithLongRun } from './GuessLastDigitWithLongRun.ts';
 import { SolverRegistry } from './types.ts';
+import { SolverStrategyAdapter } from './SimpleSolverStrategy.ts';
 
 const solvers: SolverRegistry = [
-    new CompleteRows(),
-    new TerminateRuns(),
-    new SplitRuns(),
-    new GuessLastDigitWithDuplicateRow(),
-    new GuessLastDigitWithLongRun(),
+    ...[
+        new CompleteRows(),
+        new TerminateRuns(),
+        new SplitRuns(),
+        new GuessLastDigitWithDuplicateRow(),
+        new GuessLastDigitWithLongRun(),
+    ].map((solver) => new SolverStrategyAdapter(solver)),
 ];
 
 export default solvers;
