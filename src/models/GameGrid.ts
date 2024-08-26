@@ -99,7 +99,7 @@ export class GameGrid {
         this.updateState();
     }
 
-    private updateState() {
+    updateState() {
         for (let i = 0; i < this._gridMeta.length; i++) {
             this._gridMeta[i].errors?.clear();
         }

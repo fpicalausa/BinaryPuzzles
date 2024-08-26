@@ -106,6 +106,7 @@ function Game() {
             }
         } while (steps.length);
 
+        grid.updateState();
         refresh();
     }
 
