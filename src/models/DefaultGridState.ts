@@ -60,6 +60,20 @@ export class DefaultGridState implements GridState {
         this.values = [...values];
     }
 
+    toString(): string {
+        let string = '';
+
+        this.values.forEach((value, i) => {
+            if (i % this.size[1] === 0 && string.length) {
+                string = string + '\n';
+            }
+
+            string = string + (value === null ? ' ' : value);
+        });
+
+        return string;
+    }
+
     loadFromString(data: string) {
         const rows = data.split('\n');
         const cols = Math.max(...rows.map((l) => l.length));
