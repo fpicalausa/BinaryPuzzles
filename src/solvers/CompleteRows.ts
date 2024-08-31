@@ -1,23 +1,26 @@
-import { projectColumnVales, projectRowValues } from '../models/projection.ts';
+import { GridState } from '../models/GridState.ts';
+import { Step } from './types.ts';
+import { SimpleSolverStrategy } from './SimpleSolverStrategy.ts';
 
-export class CompleteRows implements SolverStrategy {
+export class CompleteRows implements SimpleSolverStrategy {
     name = 'Complete rows';
     description =
         'A row or column must have the same number of 1 or 0. If a row has has already all 1 (or 0) figured out, fill in the rest with 0. As a special case, this fills in the last cell of any row/column.';
     findCandidates(grid: GridState): Step[] {
         // Find existing runs of two 0 or two 1 and terminate the run with the opposite value
         const result: Step[] = [];
+        const [rows, cols] = grid.getSize();
 
-        for (let i = 0; i < grid.length; i++) {
-            const row = projectRowValues(grid, i);
+        for (let i = 0; i < rows; i++) {
+            const row = grid.getRow(i);
             const step = this.computeHintsForRow([i, 0], [0, 1], row);
             if (step) {
                 result.push(step);
             }
         }
 
-        for (let i = 0; i < grid[0].length; i++) {
-            const row = projectColumnVales(grid, i);
+        for (let i = 0; i < cols; i++) {
+            const row = grid.getCol(i);
             const step = this.computeHintsForRow([0, i], [1, 0], row);
             if (step) {
                 result.push(step);

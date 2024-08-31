@@ -1,6 +1,8 @@
 import './grid.css';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { gameGridContext } from './GameGridContext.tsx';
+import { Step } from './solvers/types.ts';
+import { CellMeta } from './models/GameGrid.ts';
 
 function next(value: 0 | 1 | null) {
     switch (value) {
@@ -13,73 +15,198 @@ function next(value: 0 | 1 | null) {
     }
 }
 
+const borderClasses = ['border-t', 'border-l', 'border-b', 'border-r'];
+
+function Cell(props: {
+    value: CellValue;
+    meta: CellMeta;
+    highlight: boolean;
+    onChange: (value: CellValue) => void;
+    onClick: () => void;
+    onHover: () => void;
+    showErrors: boolean;
+    hint: {
+        isConstraint: boolean;
+        isTarget: boolean;
+    };
+    borderConstraints: Borders;
+}) {
+    return (
+        <div
+            onContextMenu={(e) => {
+                e.preventDefault();
+                return false;
+            }}
+            onClick={(e) => {
+                props.onClick();
+
+                if (e.buttons === 0) {
+                    props.onChange(next(props.value));
+                }
+
+                e.preventDefault();
+                return false;
+            }}
+            onMouseEnter={() => props.onHover()}
+            className={[
+                'cell',
+                props.meta.isLocked ? 'initial' : '',
+                props.showErrors && props.meta.errors?.size ? 'error' : '',
+                props.showErrors && props.meta.errors?.size
+                    ? 'error-' + props.meta.errors.values().next().value
+                    : '',
+                props.hint.isTarget ? 'hint' : '',
+                props.hint.isConstraint ? 'hint-constraint' : '',
+                props.highlight ? 'highlight' : '',
+                ...props.borderConstraints.map((v, i) =>
+                    v ? borderClasses[i] : '',
+                ),
+            ].join(' ')}>
+            {props.value}
+        </div>
+    );
+}
+
+function isBetween1(peek: number, l1: number, l2: number) {
+    if (l1 < l2) {
+        return l1 <= peek && peek <= l2;
+    } else {
+        return l2 <= peek && peek <= l1;
+    }
+}
+
+function isBetween(peek: CellLocation, l1: CellLocation, l2: CellLocation) {
+    return (
+        isBetween1(peek[0], l1[0], l2[0]) && isBetween1(peek[1], l1[1], l2[1])
+    );
+}
+
+type Borders = [boolean, boolean, boolean, boolean];
+
+function getConstraints(
+    i: number,
+    j: number,
+    constraints: [number, number, number, number][],
+): Borders {
+    return constraints.reduce(
+        (p: Borders, c) => {
+            return [
+                p[0] || (c[0] === i && c[1] <= j && j < c[3]),
+                p[1] || (c[1] === j && c[0] <= i && i < c[2]),
+                p[2] || (c[2] - 1 === i && c[1] <= j && j < c[3]),
+                p[3] || (c[3] - 1 === j && c[0] <= i && i < c[2]),
+            ];
+        },
+        [false, false, false, false],
+    );
+}
+
 export function Grid({
     showErrors,
     level,
     hint,
-    cleaHint,
+    clearHint,
 }: {
     showErrors: boolean;
     level: string | null;
     hint: Step | null;
-    cleaHint: () => void;
+    clearHint: () => void;
 }) {
-    const { grid, setCell } = useContext(gameGridContext);
+    const { grid, setCell, isSettingConstraint, addConstraint } =
+        useContext(gameGridContext);
+    const size = grid.getSize();
+    const [currentConstraint, setCurrentConstraint] = useState<CellLocation[]>(
+        [],
+    );
+    const [hoveredCell, setHoveredCell] = useState<CellLocation | null>(null);
 
-    const state: GridState = grid.getState();
+    const constraints: [number, number, number, number][] = grid
+        .getConstraints()
+        .slice(1)
+        .map((c) => [...c.getBoundaries()[0], ...c.getBoundaries()[1]]);
+
     return (
-        <div>
+        <div onMouseOut={() => setHoveredCell(null)}>
             <div>
                 {level ? level : ''}
-                {`${grid.getSize()}x${grid.getSize()}`} puzzle
+                {`${size[0]}x${size[1]}`} puzzle
             </div>
             <div
                 className="grid"
                 style={{
-                    gridTemplateColumns: 'repeat(' + grid.getSize() + ', auto)',
+                    gridTemplateColumns: 'repeat(' + size[1] + ', auto)',
                 }}>
-                {state.map((row, i) =>
-                    row.map((cell, j) => (
-                        <div
-                            key={`cell_${i}_${j}`}
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                                return false;
-                            }}
-                            onClick={(e) => {
-                                if (cell.isInitial && grid.isLocked()) {
-                                    return false;
-                                }
+                {grid.map(([i, j], value, meta) => (
+                    <Cell
+                        key={`cell_${i}_${j}`}
+                        value={value}
+                        meta={meta}
+                        onHover={() => setHoveredCell([i, j])}
+                        onChange={(value) => {
+                            if (isSettingConstraint) return;
 
-                                if (e.buttons === 0) {
-                                    setCell(i, j, next(cell.value));
-                                    cleaHint();
-                                }
+                            setCell(i, j, value);
+                            clearHint();
+                        }}
+                        onClick={() => {
+                            if (!isSettingConstraint) return;
 
-                                e.preventDefault();
-                                return false;
-                            }}
-                            className={[
-                                'cell',
-                                cell.isInitial ? 'initial' : '',
-                                showErrors && cell.error
-                                    ? 'error-' + cell.error
-                                    : '',
-                                hint?.locations.some(
-                                    (l) => l[0] === i && l[1] === j,
-                                )
-                                    ? 'hint'
-                                    : '',
+                            if (currentConstraint.length < 2) {
+                                currentConstraint.push([i, j]);
+                            }
+
+                            if (currentConstraint.length === 2) {
+                                const tl: CellLocation = [
+                                    Math.min(
+                                        currentConstraint[0][0],
+                                        currentConstraint[1][0],
+                                    ),
+                                    Math.min(
+                                        currentConstraint[0][1],
+                                        currentConstraint[1][1],
+                                    ),
+                                ];
+
+                                const br: CellLocation = [
+                                    Math.max(
+                                        currentConstraint[0][0],
+                                        currentConstraint[1][0],
+                                    ) + 1,
+                                    Math.max(
+                                        currentConstraint[0][1],
+                                        currentConstraint[1][1],
+                                    ) + 1,
+                                ];
+                                addConstraint(tl, br);
+                                setCurrentConstraint([]);
+                            }
+                        }}
+                        showErrors={showErrors}
+                        highlight={
+                            (i === hoveredCell?.[0] &&
+                                j === hoveredCell?.[1]) ||
+                            (currentConstraint.length === 1 &&
+                                hoveredCell &&
+                                isBetween(
+                                    [i, j],
+                                    currentConstraint[0],
+                                    hoveredCell,
+                                )) ||
+                            false
+                        }
+                        borderConstraints={getConstraints(i, j, constraints)}
+                        hint={{
+                            isConstraint:
                                 hint?.constraintCells.some(
-                                    (c) => c[0] === i && c[1] === j,
-                                )
-                                    ? 'hint-constraint'
-                                    : '',
-                            ].join(' ')}>
-                            {cell.value}
-                        </div>
-                    )),
-                )}
+                                    ([x, y]) => x === i && y === j,
+                                ) || false,
+                            isTarget:
+                                hint?.locations.some(
+                                    ([x, y]) => x === i && y === j,
+                                ) || false,
+                        }}
+                    />
+                ))}
             </div>
         </div>
     );

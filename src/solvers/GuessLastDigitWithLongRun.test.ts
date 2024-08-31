@@ -1,10 +1,10 @@
 import { describe, expect, it, test } from 'vitest';
-import { loadGameData } from '../models/loader.ts';
 import {
     computeRunLength,
     guessAndCheck,
     GuessLastDigitWithLongRun,
 } from './GuessLastDigitWithLongRun.ts';
+import { DefaultGridState } from '../models/DefaultGridState.ts';
 
 test('computeRunLength', () => {
     expect(computeRunLength([0, 0, 1, 1, 0, 1, null, null])).toEqual({
@@ -44,7 +44,8 @@ test('guessAndcheck', () => {
 
 describe('GuessLastDigitWithLongRun', () => {
     it('hints at avoiding three runs', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             [
                 '001  0  ',
                 '0       ',
@@ -77,7 +78,8 @@ describe('GuessLastDigitWithLongRun', () => {
         }
     });
     it('hints at avoiding three runs (2)', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             [
                 ' 1 0  0 ',
                 '1  x  0 ',

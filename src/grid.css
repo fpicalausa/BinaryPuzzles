@@ -8,6 +8,7 @@
 }
 
 .grid .cell {
+    box-sizing: border-box;
     background: #444;
     width: 32px;
     height: 32px;
@@ -21,19 +22,11 @@
 
 }
 
-.grid .cell:hover {
-    background: #555;
-}
-
-.grid .cell.error-row {
+.grid .cell.error {
     background-color: #472300;
 }
 
-.grid .cell.error-column {
-    background-color: #472300;
-}
-
-.grid .cell.error-cell {
+.grid .cell.error.error-three {
     background-color: #5d0000;
 }
 
@@ -47,4 +40,23 @@
 
 .grid .cell.initial {
     font-weight: bold;
+}
+
+.grid .cell.highlight {
+    background-color: #555;
+}
+.grid .cell.border-l {
+    border-left: 2px solid #000;
+}
+
+.grid .cell.border-t {
+    border-top: 2px solid #000;
+}
+
+.grid .cell.border-r {
+    border-right: 2px solid #000;
+}
+
+.grid .cell.border-b {
+    border-bottom: 2px solid #000;
 }

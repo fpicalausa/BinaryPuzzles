@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { loadGameData } from '../models/loader.ts';
 import { CompleteRows } from './CompleteRows.ts';
+import { DefaultGridState } from '../models/DefaultGridState.ts';
 
 describe('CompleteRows', () => {
     it('complete rows half full', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             ['000   ', '      ', '      ', '      ', '      ', '      '].join(
                 '\n',
             ),
@@ -34,7 +35,8 @@ describe('CompleteRows', () => {
     });
 
     it('complete columns half full', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             ['  0   ', '      ', '  0   ', '      ', '  0   ', '      '].join(
                 '\n',
             ),
@@ -64,7 +66,8 @@ describe('CompleteRows', () => {
     });
 
     it('completes columns with a missing value full', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             ['      ', '00101 ', '      ', '      ', '      ', '      '].join(
                 '\n',
             ),

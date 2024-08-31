@@ -1,14 +1,15 @@
-type CellLocation = [number, number];
+import { GridState } from '../models/GridState.ts';
+import { GameGridConstraints } from '../models/GameGridConstraints.ts';
 
-interface SolverStrategy {
+export interface SolverStrategy {
     name: string;
     description: string;
-    findCandidates(grid: GridState): Step[];
+    findCandidates(grid: GridState, constraints: GameGridConstraints[]): Step[];
 }
 
-type SolverRegistry = SolverStrategy[];
+export type SolverRegistry = SolverStrategy[];
 
-type Step = {
+export type Step = {
     locations: CellLocation[];
     value: 0 | 1;
     // Which cells contribute to solving this?

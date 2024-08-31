@@ -7,7 +7,7 @@ import {
     instersect,
     registerRowSignature,
 } from './GuessLastDigitWithDuplicateRow.ts';
-import { loadGameData } from '../models/loader.ts';
+import { DefaultGridState } from '../models/DefaultGridState.ts';
 
 test('intersect two sets', () => {
     expect(instersect(new Set([1, 2, 3]), new Set([3, 4, 5]))).toEqual(
@@ -112,7 +112,8 @@ test('findPossibleDuplicateRows', () => {
 
 describe('GuessLastDigitWithDuplicateRow', () => {
     it('hints at avoiding duplicate rows', () => {
-        const state = loadGameData(
+        const state = new DefaultGridState();
+        state.loadFromString(
             ['0  0  ', '00101 ', '00    ', '      ', '      ', '      '].join(
                 '\n',
             ),
