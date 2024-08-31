@@ -1,6 +1,7 @@
 import { Step } from './types.ts';
 import { GridState } from '../models/GridState.ts';
 import { SimpleSolverStrategy } from './SimpleSolverStrategy.ts';
+import { buildLocations } from '../models/utils.ts';
 
 type RunStart = [number | null, number | null];
 
@@ -161,14 +162,11 @@ export class GuessLastDigitWithLongRun implements SimpleSolverStrategy {
     ): Step {
         const isRow = direction[0] === 0;
 
-        const constraintCells: CellLocation[] = [];
-
-        for (let i = 0; i < 3; i++) {
-            constraintCells.push([
-                runStart[0] + direction[0] * i,
-                runStart[1] + direction[1] * i,
-            ]);
-        }
+        const constraintCells: CellLocation[] = buildLocations(
+            runStart,
+            direction,
+            3,
+        );
 
         return {
             strategy: GuessLastDigitWithLongRun.name,

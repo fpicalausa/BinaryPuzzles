@@ -30,3 +30,19 @@ export function getFullSignature(cells: CellValue[]) {
 
     return signature;
 }
+
+export function buildLocations(
+    origin: CellLocation,
+    direction: Vector2,
+    length: number,
+) {
+    const result: CellLocation[] = [origin];
+
+    for (let i = 1; i < length; i++) {
+        result.push([
+            origin[0] + direction[0] * i,
+            origin[1] + direction[1] * i,
+        ]);
+    }
+    return result;
+}
