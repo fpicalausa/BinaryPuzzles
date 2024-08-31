@@ -5,6 +5,7 @@ import { GuessLastDigitWithDuplicateRow } from './GuessLastDigitWithDuplicateRow
 import { GuessLastDigitWithLongRun } from './GuessLastDigitWithLongRun.ts';
 import { SolverRegistry } from './types.ts';
 import { SolverStrategyAdapter } from './SimpleSolverStrategy.ts';
+import { GuessPenultimateDigits } from './GuessPenultimateDigits.ts';
 
 const solvers: SolverRegistry = [
     ...[
@@ -13,6 +14,7 @@ const solvers: SolverRegistry = [
         new SplitRuns(),
         new GuessLastDigitWithDuplicateRow(),
         new GuessLastDigitWithLongRun(),
+        new GuessPenultimateDigits(),
     ].map((solver) => new SolverStrategyAdapter(solver)),
 ];
 

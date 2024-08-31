@@ -100,7 +100,6 @@ export function GameGridContextProvider(props: {
                 refresh();
             },
             refresh() {
-                debugger;
                 saveStateInLocalStorage();
                 refresh();
             },
