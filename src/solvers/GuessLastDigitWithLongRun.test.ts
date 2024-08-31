@@ -60,8 +60,6 @@ describe('GuessLastDigitWithLongRun', () => {
 
         const steps = new GuessLastDigitWithLongRun().findCandidates(state);
 
-        console.error(JSON.stringify(steps));
-
         const expectedSteps = [
             expect.objectContaining({
                 locations: [[0, 6]],
@@ -93,8 +91,6 @@ describe('GuessLastDigitWithLongRun', () => {
         );
 
         const steps = new GuessLastDigitWithLongRun().findCandidates(state);
-
-        console.error(JSON.stringify(steps));
 
         const expectedSteps = [
             expect.objectContaining({

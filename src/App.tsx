@@ -50,7 +50,6 @@ function Game() {
 
     const { grid, clear, resize, lockGrid, load, refresh, setConstraintMode } =
         useContext(gameGridContext);
-
     function computeNextHint() {
         for (let solver of solvers) {
             const steps = solver.findCandidates(
@@ -71,7 +70,6 @@ function Game() {
         const daysElapsed = Math.trunc(
             (today.getTime() - firstPuzzleDate.getTime()) / (24 * 3600 * 1000),
         );
-        debugger;
         const defaultUrl =
             'https://www.binarypuzzle.com/daypuzzle.php?id=' +
             (4684 + daysElapsed);

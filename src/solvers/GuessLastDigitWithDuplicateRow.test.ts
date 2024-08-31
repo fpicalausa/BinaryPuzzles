@@ -123,8 +123,6 @@ describe('GuessLastDigitWithDuplicateRow', () => {
             state,
         );
 
-        console.error(JSON.stringify(steps));
-
         const expectedSteps = [
             expect.objectContaining({
                 locations: [[0, 1]],
