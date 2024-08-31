@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import './App.css';
 import { Grid } from './Grid.tsx';
 import {
@@ -9,6 +9,7 @@ import games from './assets/games/games.ts';
 import { extractPuzzleFromUrl } from './gameGridImporter.ts';
 import solvers from './solvers';
 import { Step } from './solvers/types.ts';
+import { StateSnapshot } from './models/GameGrid.ts';
 
 function SizeInput(props: {
     value: GridSize;
@@ -43,10 +44,30 @@ function SizeInput(props: {
     );
 }
 
+function useSnapshots() {
+    const [snapshots, setSnapshots] = useState<StateSnapshot[]>([]);
+
+    const { grid } = useContext(gameGridContext);
+
+    useEffect(() => {
+        setSnapshots([]);
+    }, [grid]);
+
+    const takeSnapshot = useCallback(() => {
+        setSnapshots((s) => [grid.getStateSnapshot(), ...s]);
+    }, [grid]);
+
+    return {
+        snapshots,
+        takeSnapshot,
+    };
+}
+
 function Game() {
     const [showErrors, setShowErrors] = useState(true);
     const [level, setLevel] = useState<string | null>(null);
     const [hint, setHint] = useState<Step | null>(null);
+    const { snapshots, takeSnapshot } = useSnapshots();
 
     const { grid, clear, resize, lockGrid, load, refresh, setConstraintMode } =
         useContext(gameGridContext);
@@ -170,17 +191,35 @@ function Game() {
                     <>
                         <button onClick={computeNextHint}>Hint</button>
                         <button onClick={autoSolve}>Auto-solve</button>
+                        <button onClick={takeSnapshot}>Take snapshot</button>
                     </>
                 )}
                 {!grid.isLocked() && (
-                    <button onClick={() => lockGrid()}>Start Playing</button>
-                )}
-                {!grid.isLocked() && (
-                    <button onClick={() => setConstraintMode()}>
-                        Add constraint
-                    </button>
+                    <>
+                        <button onClick={() => lockGrid()}>
+                            Start Playing
+                        </button>
+                        <button onClick={() => setConstraintMode()}>
+                            Add constraint
+                        </button>
+                    </>
                 )}
                 <button onClick={clear}>Reset</button>
+            </div>
+            <div className="snapshots">
+                {snapshots.map((s, i) => {
+                    return (
+                        <button
+                            key={i}
+                            onClick={() => {
+                                grid.loadState(s);
+                                grid.lockGrid();
+                                refresh();
+                            }}>
+                            Restore snapshot {i}
+                        </button>
+                    );
+                })}
             </div>
         </>
     );

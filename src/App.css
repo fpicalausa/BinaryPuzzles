@@ -23,3 +23,8 @@ input {
 .hint-details {
     width: 320px;
 }
+.snapshots{
+    display: flex;
+    flex-direction: column;
+    gap:8px;
+}
