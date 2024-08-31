@@ -47,7 +47,6 @@ export function GameGridContextProvider(props: {
     const [constraintsMode, setConstraintsMode] = useState(false);
     const [grid, setGrid] = useState(() => {
         const result = new GameGrid([props.initialSize, props.initialSize]);
-
         const saved = localStorage.getItem('current-game');
         if (!saved) return result;
         let state = JSON.parse(saved);
@@ -59,6 +58,16 @@ export function GameGridContextProvider(props: {
         return result;
     });
     const [token, refresh] = useForceRefresh();
+
+    const saveStateInLocalStorage = useCallback(() => {
+        localStorage.setItem(
+            'current-game',
+            JSON.stringify({
+                locked: grid.isLocked(),
+                grid: grid.getStateSnapshot(),
+            }),
+        );
+    }, [grid]);
 
     // @ts-ignore
     globalThis.gameGrid = grid;
@@ -72,13 +81,7 @@ export function GameGridContextProvider(props: {
             },
             setCell: (x: number, y: number, value: CellValue) => {
                 grid.setCell(x, y, value);
-                localStorage.setItem(
-                    'current-game',
-                    JSON.stringify({
-                        locked: grid.isLocked(),
-                        grid: grid.getState(),
-                    }),
-                );
+                saveStateInLocalStorage();
                 refresh();
             },
             lockGrid: () => {
@@ -96,7 +99,11 @@ export function GameGridContextProvider(props: {
                 grid.lockGrid();
                 refresh();
             },
-            refresh,
+            refresh() {
+                debugger;
+                saveStateInLocalStorage();
+                refresh();
+            },
             addConstraint(tl: CellLocation, br: CellLocation) {
                 grid.addConstraint(tl, br);
                 setConstraintsMode(false);

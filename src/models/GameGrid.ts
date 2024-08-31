@@ -137,7 +137,7 @@ export class GameGrid {
             );
         }
 
-        if (state.meta.length !== state.size[0] * state.size[1]) {
+        if (state.meta && state.meta.length !== state.size[0] * state.size[1]) {
             throw new Error(
                 "Invalid state snapshot: cell meta don't match size",
             );
@@ -146,7 +146,12 @@ export class GameGrid {
         this.resize(state.size);
 
         this._state.load(state.values);
-        this._gridMeta = [...state.meta];
+        this._gridMeta = state.meta
+            ? state.meta.map((m) => ({
+                  isLocked: m.isLocked,
+                  errors: new Set(),
+              }))
+            : this._gridMeta;
         this.updateState();
     }
 
