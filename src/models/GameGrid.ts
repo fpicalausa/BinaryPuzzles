@@ -8,6 +8,7 @@ export type StateSnapshot = {
     size: [number, number];
     values: CellValue[];
     meta: CellMeta[];
+    constraints?: [CellLocation, CellLocation][];
 };
 
 const DEFAULT_CELL_META: CellMeta = {
@@ -152,6 +153,13 @@ export class GameGrid {
                   errors: new Set(),
               }))
             : this._gridMeta;
+
+        this._constraints = [
+            ...this._constraints,
+            ...(state.constraints || []).map(
+                ([tl, br]) => new GameGridConstraints(this._state, tl, br),
+            ),
+        ];
         this.updateState();
     }
 
@@ -162,7 +170,16 @@ export class GameGrid {
             errors: new Set(),
         }));
 
-        return { size: [this._size[0], this._size[1]], values, meta };
+        const constraints: [CellLocation, CellLocation][] = this._constraints
+            .slice(1)
+            .map((c) => [...c.getBoundaries()]);
+
+        return {
+            size: [this._size[0], this._size[1]],
+            values,
+            meta,
+            constraints,
+        };
     }
 
     map<T>(
